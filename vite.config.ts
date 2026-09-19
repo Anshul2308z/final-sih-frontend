@@ -6,12 +6,12 @@ import { nitro } from "nitro/vite";
 
 export default defineConfig({
   plugins: [
+    tailwindcss(),
     tanstackStart({
       server: { entry: "server" },
     }),
     nitro({ preset: "vercel" }),
     react(),
-    tailwindcss(),
   ],
   resolve: {
     tsconfigPaths: true,
