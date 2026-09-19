@@ -166,9 +166,6 @@ export function AppShell({
               {t("nav.home")}
             </Link>
             {navGroups.map(group => {
-            const {
-              t
-            } = useTranslation();
             const active = group.items.some(item => pathname.startsWith(item.to));
             return <DropdownMenu key={group.label}>
                   <DropdownMenuTrigger asChild>
@@ -183,9 +180,6 @@ export function AppShell({
                     </DropdownMenuLabel>
                     <DropdownMenuSeparator />
                     {group.items.map(item => {
-                  const {
-                    t
-                  } = useTranslation();
                   return <DropdownMenuItem key={item.to} asChild>
                         <Link to={item.to} className="flex cursor-pointer items-center gap-3 rounded-lg px-2.5 py-2.5">
                           <item.icon className="size-4 text-botanical" aria-hidden />
@@ -274,9 +268,6 @@ export function AppShell({
             </div>
             <nav className="grid grid-cols-2 gap-2 sm:grid-cols-3" aria-label={t("All sections")}>
               {navItems.map(item => {
-            const {
-              t
-            } = useTranslation();
             const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
             return <Link key={item.to} to={item.to} className={cn("flex items-center gap-2.5 rounded-xl border px-3 py-3 text-sm font-medium transition-colors", active ? "border-primary/20 bg-secondary text-primary" : "border-border bg-background text-foreground hover:bg-muted")}>
                     <item.icon className="size-4" aria-hidden />
@@ -341,9 +332,6 @@ export function AppShell({
       <nav aria-label={t("Quick navigation")} className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-card/95 backdrop-blur-xl xl:hidden">
         <ul className="mx-auto flex max-w-md items-stretch">
           {mobileNav.map(item => {
-          const {
-            t
-          } = useTranslation();
           const active = item.to === "/" ? pathname === "/" : pathname.startsWith(item.to);
           return <li key={item.to} className="flex-1">
                 <Link to={item.to} className={cn("flex flex-col items-center gap-1 py-2.5 text-[0.62rem] font-medium", active ? "text-primary" : "text-muted-foreground")}>
@@ -365,9 +353,6 @@ export function AppShell({
           <CommandEmpty>{t("No matching workspace or reference.")}</CommandEmpty>
           <CommandGroup heading={t("shell.colWorkspaces")}>
             {navItems.map(item => {
-            const {
-              t
-            } = useTranslation();
             return <CommandItem key={item.to} value={item.label} asChild>
                 <Link to={item.to} onClick={() => setPaletteOpen(false)}>
                   <item.icon className="size-4" aria-hidden />
