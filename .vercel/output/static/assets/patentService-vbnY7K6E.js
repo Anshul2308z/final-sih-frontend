@@ -1,1 +1,0 @@
-import{x as e}from"./primitives-Cc2zhStv.js";function t(){return e}export{t};

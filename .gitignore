@@ -37,3 +37,4 @@ dist-ssr
 
 # Temporary files
 string_inventory.json
+\n.vercel
