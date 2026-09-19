@@ -4,11 +4,24 @@ import { PriorArtGraphResponse, PriorArtGraphRequest, EvidenceNode } from "@/typ
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
 
+const graphCache = new Map<string, PriorArtGraphResponse>();
+
+export function setPriorArtCache(query: string, data: PriorArtGraphResponse) {
+  const normalizedKey = query.trim().toLowerCase();
+  graphCache.set(normalizedKey, data);
+}
+
 export function getEvidenceGraph(): { nodes: MockEvidenceNode[]; edges: Array<[string, string]> } {
   return { nodes: evidenceNodes, edges: evidenceEdges };
 }
 
 export async function fetchPriorArtGraph(query?: string): Promise<PriorArtGraphResponse> {
+  const normalizedKey = query?.trim().toLowerCase();
+  
+  if (normalizedKey && graphCache.has(normalizedKey)) {
+    return graphCache.get(normalizedKey)!;
+  }
+
   const reqBody: PriorArtGraphRequest = query ? { query } : {};
   const res = await fetch(`${API_BASE_URL}/api/v1/prior-art/graph`, {
     method: "POST",
@@ -18,6 +31,11 @@ export async function fetchPriorArtGraph(query?: string): Promise<PriorArtGraphR
   if (!res.ok) {
     throw new Error(`Graph API returned ${res.status}`);
   }
-  return await res.json();
+  
+  const data = await res.json();
+  if (normalizedKey) {
+    graphCache.set(normalizedKey, data);
+  }
+  return data;
 }
 

@@ -8,9 +8,9 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Disclaimer, Eyebrow, PageHeader, WorkspaceIdentity, Panel, DataStatusBadge, StatTile } from "@/components/ip/primitives";
+import { useJurisdiction } from "@/components/ip/jurisdiction";
 import type { FeeLine } from "@/data/referenceData";
 export const Route = createFileRoute("/cost")({
   head: () => ({
@@ -53,6 +53,7 @@ function CostPlanner() {
   const {
     t
   } = useTranslation();
+  const { jurisdiction } = useJurisdiction();
   const [right, setRight] = useState<typeof rights[number]>("Patent");
   const [applicant, setApplicant] = useState("Startup");
   const [mode, setMode] = useState("e-filing");
@@ -234,46 +235,46 @@ function CostPlanner() {
               <Switch checked={examination} onCheckedChange={setExamination} />
             </div>
 
-            <Separator />
-
-            <div>
-              <Label className="text-xs text-muted-foreground">{t("International country")}</Label>
-              <Select value={country} onValueChange={setCountry}>
-                <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["Germany / EPO", "United States", "Japan", "Australia", "Canada"].map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">{t("Currency")}</Label>
-              <Select value={currency} onValueChange={setCurrency}>
-                <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["EUR", "USD", "CHF"].map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <Label className="text-xs text-muted-foreground">{t("Designations ·")}{designations}</Label>
-              <Slider className="mt-3" value={[designations]} min={1} max={8} step={1} onValueChange={v => setDesignations(v[0] ?? designations)} />
-            </div>
+            {jurisdiction === "International" && (
+              <>
+                <Separator />
+                <div>
+                  <Label className="text-xs text-muted-foreground">{t("International country")}</Label>
+                  <Select value={country} onValueChange={setCountry}>
+                    <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["Germany / EPO", "United States", "Japan", "Australia", "Canada"].map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">{t("Currency")}</Label>
+                  <Select value={currency} onValueChange={setCurrency}>
+                    <SelectTrigger className="mt-1.5"><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {["EUR", "USD", "CHF"].map(c => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label className="text-xs text-muted-foreground">{t("Designations ·")}{designations}</Label>
+                  <Slider className="mt-3" value={[designations]} min={1} max={8} step={1} onValueChange={v => setDesignations(v[0] ?? designations)} />
+                </div>
+              </>
+            )}
           </div>
         </Panel>
 
         <div className="space-y-6">
-          <Tabs defaultValue="india">
-            <TabsList>
-              <TabsTrigger value="india">{t("🇮🇳 India")}</TabsTrigger>
-              <TabsTrigger value="intl">{t("🌍 International")}</TabsTrigger>
-            </TabsList>
-            <TabsContent value="india" className="mt-5 space-y-5">
+          {jurisdiction === "India" ? (
+            <div className="mt-5 space-y-5">
               <FeeSection lines={indiaLines} currencyLabel="INR" format={inr} />
-            </TabsContent>
-            <TabsContent value="intl" className="mt-5 space-y-5">
+            </div>
+          ) : (
+            <div className="mt-5 space-y-5">
               <FeeSection lines={internationalLines} currencyLabel={currency} format={n => `${currency} ${n.toLocaleString("en-IN")}`} />
-            </TabsContent>
-          </Tabs>
+            </div>
+          )}
 
           <Disclaimer>{t("Fees change. Always verify the current official fee schedule before filing. Government fees and professional estimates are separate figures and must not be added together as a single official cost.")}</Disclaimer>
         </div>

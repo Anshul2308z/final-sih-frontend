@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { AnalysisChip, ConfidenceMeter, Disclaimer, Eyebrow, EmptyState, JurisdictionPill, Panel, PageHeader, WorkspaceIdentity, DataStatusBadge, RiskChip, SourceBadge, StatTile } from "@/components/ip/primitives";
 import { JurisdictionSwitch, useJurisdiction } from "@/components/ip/jurisdiction";
 import { getPatentRecords } from "@/services/patentService";
+import { setPriorArtCache } from "@/services/priorArtService";
 import { ChatResponse, ChatRequest } from "@/types/api";
 export const Route = createFileRoute("/assistant")({
   head: () => ({
@@ -76,6 +77,11 @@ function Assistant() {
       });
       if (!res.ok) throw new Error(`API returned ${res.status}`);
       const json = await res.json();
+      
+      if (json.prior_art_graph) {
+        setPriorArtCache(input, json.prior_art_graph);
+      }
+      
       setData(json);
       setStage(stages.length);
       setPhase("done");

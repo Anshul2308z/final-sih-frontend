@@ -46,6 +46,50 @@ function ExpertPage() {
     t
   } = useTranslation();
   const [sent, setSent] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    org: "",
+    topic: "",
+    context: "",
+  });
+
+  const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/expert/consultation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          organization: formData.org || undefined,
+          topic: formData.topic,
+          context: formData.context,
+        }),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to submit request");
+      }
+
+      setSent(true);
+      toast.success(t("Request captured successfully"), {
+        description: t("In production this would route to a vetted IP professional.")
+      });
+    } catch (error) {
+      toast.error(t("Submission failed"), {
+        description: t("Please check your connection and try again.")
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-10 workspace-page workspace-page-expert">
       <WorkspaceIdentity index="11" code="EX-11" label={t("EXPERT ESCALATION")} title={t("Know when evidence needs a professional")} signal="Know when evidence needs a professional · REVIEW / ESCALATE" metric="REVIEW / ESCALATE" />
 
@@ -56,32 +100,26 @@ function ExpertPage() {
 
       <div className="mt-10 grid gap-6 lg:grid-cols-[1fr_380px]">
         <Panel className="p-6 sm:p-8">
-          <SectionTitle title={t("Request human review")} hint="Local session — no data is transmitted" />
-          <form className="mt-6 space-y-5" onSubmit={e => {
-          e.preventDefault();
-          setSent(true);
-          toast.success("Request captured for this local session", {
-            description: t("In production this would route to a vetted IP professional.")
-          });
-        }}>
+          <SectionTitle title={t("Request human review")} hint="Secure request" />
+          <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="name">{t("Full name")}</Label>
-                <Input id="name" placeholder={t("Dr. A. Researcher")} required />
+                <Input id="name" placeholder={t("Dr. A. Researcher")} required value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} disabled={isSubmitting} />
               </div>
               <div className="space-y-2">
                 <Label htmlFor="email">{t("Work email")}</Label>
-                <Input id="email" type="email" placeholder={t("you@institution.in")} required />
+                <Input id="email" type="email" placeholder={t("you@institution.in")} required value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} disabled={isSubmitting} />
               </div>
             </div>
             <div className="grid gap-5 sm:grid-cols-2">
               <div className="space-y-2">
                 <Label htmlFor="org">{t("Organisation")}</Label>
-                <Input id="org" placeholder={t("Institute / company")} />
+                <Input id="org" placeholder={t("Institute / company")} value={formData.org} onChange={e => setFormData({...formData, org: e.target.value})} disabled={isSubmitting} />
               </div>
               <div className="space-y-2">
                 <Label>{t("Topic")}</Label>
-                <Select required>
+                <Select required value={formData.topic} onValueChange={v => setFormData({...formData, topic: v})} disabled={isSubmitting}>
                   <SelectTrigger>
                     <SelectValue placeholder={t("Select a topic")} />
                   </SelectTrigger>
@@ -95,7 +133,7 @@ function ExpertPage() {
             </div>
             <div className="space-y-2">
               <Label htmlFor="context">{t("Describe the situation")}</Label>
-              <Textarea id="context" rows={5} placeholder={t("What are you deciding? Which jurisdictions, formulations, or patents are involved? Include any deadlines.")} required />
+              <Textarea id="context" rows={5} placeholder={t("What are you deciding? Which jurisdictions, formulations, or patents are involved? Include any deadlines.")} required value={formData.context} onChange={e => setFormData({...formData, context: e.target.value})} disabled={isSubmitting} />
             </div>
             <div className="space-y-2">
               <Label>{t("Attach analysis context (optional)")}</Label>
@@ -107,13 +145,13 @@ function ExpertPage() {
               <p className="text-xs text-muted-foreground">{t("Sharing your in-app analysis lets the professional start from the cited evidence instead of a blank page.")}</p>
             </div>
             <div className="flex flex-wrap items-center gap-3">
-              <Button type="submit" variant="saffron">
-                <Send className="size-4" aria-hidden />{t("Submit request")}</Button>
+              <Button type="submit" variant="saffron" disabled={isSubmitting}>
+                <Send className="size-4" aria-hidden />{isSubmitting ? t("Submitting...") : t("Submit request")}</Button>
               <span className="text-xs text-muted-foreground">{t("Typical response window: 2–3 working days (indicative).")}</span>
             </div>
           </form>
           {sent ? <p className="mt-5 flex items-start gap-2 rounded-lg border border-verified/30 bg-verified/5 p-3 text-sm text-verified">
-              <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden />{t("Request captured in this local session. A production build would notify the\n              expert network and open a tracked case.")}</p> : null}
+              <CheckCircle2 className="mt-0.5 size-4 shrink-0" aria-hidden />{t("Request captured successfully. A production build would notify the\n              expert network and open a tracked case.")}</p> : null}
         </Panel>
 
         <div className="space-y-6">

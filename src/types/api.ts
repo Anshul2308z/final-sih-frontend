@@ -23,6 +23,7 @@ export interface ChatResponse {
   key_findings: string[];
   next_steps: string[];
   evidence: EvidenceItem[];
+  prior_art_graph?: PriorArtGraphResponse;
 }
 
 export interface PriorArtGraphRequest {

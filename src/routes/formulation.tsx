@@ -49,7 +49,7 @@ const steps = [{
   question: "How is it consumed or applied?",
   options: ["Oral medicine form", "Food or beverage form", "Topical application"]
 }];
-function classify(a: Answers) {
+function classify(a: Answers, t: (key: string) => string) {
   if (a.claim === "Cosmetic or external appearance benefit" || a.route === "Topical application") {
     if (a.claim === "Cosmetic or external appearance benefit") {
       return {
@@ -126,7 +126,7 @@ function Formulation() {
   const [done, setDone] = useState(false);
   const total = steps.length + 1;
   const current = steps[step - 1];
-  const result = classify(answers);
+  const result = classify(answers, t);
   const canAdvance = step === 0 ? answers.product.trim().length > 2 : Boolean(current && answers[current.key]);
   return <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8 workspace-page workspace-page-formulation">
       <WorkspaceIdentity index="04" code="LAB-04" label={t("FORMULATION LAB")} title={t("Classify the product before filing")} signal="Classify the product before filing · CLASSIFY / ROUTE" metric="CLASSIFY / ROUTE" />
