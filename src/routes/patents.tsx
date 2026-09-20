@@ -1,5 +1,5 @@
 import { useTranslation } from "react-i18next";
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Loader2, Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -10,8 +10,9 @@ import { Separator } from "@/components/ui/separator";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Disclaimer, EmptyState, EvidenceChip, Eyebrow, JurisdictionPill, PageHeader, WorkspaceIdentity, Panel, DataStatusBadge, RiskChip, SourceBadge } from "@/components/ip/primitives";
-import { getPatentRecords } from "@/services/patentService";
 import type { PatentRecord } from "@/data/referenceData";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:10000";
 export const Route = createFileRoute("/patents")({
   head: () => ({
     meta: [{
@@ -96,16 +97,50 @@ function PatentIntelligence() {
   const [plant, setPlant] = useState("All");
   const [status, setStatus] = useState("All");
   const [loading, setLoading] = useState(false);
-  const [ran, setRan] = useState(true);
-  const results = useMemo(() => {
-    return getPatentRecords().filter(r => scope === "Both" ? true : r.jurisdictionGroup === scope).filter(r => plant === "All" ? true : r.plants.includes(plant)).filter(r => status === "All" ? true : r.status === status).sort((a, b) => b.similarity - a.similarity);
-  }, [scope, plant, status]);
-  const search = () => {
+  const [ran, setRan] = useState(false);
+  const [records, setRecords] = useState<PatentRecord[]>([]);
+  const [allPlants, setAllPlants] = useState<string[]>([]);
+
+  const search = async () => {
     setLoading(true);
     setRan(true);
-    window.setTimeout(() => setLoading(false), 700);
+    try {
+      const response = await fetch(`${API_BASE_URL}/api/v1/patents/search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          query,
+          scope,
+          type,
+          activeSources,
+          plant,
+          status
+        })
+      });
+      const data = await response.json();
+      setRecords(data);
+      
+      // Dynamically extract plants from results to populate the filter dropdown
+      const plants = Array.from(new Set(data.flatMap((r: PatentRecord) => r.plants))).sort() as string[];
+      setAllPlants(plants);
+    } catch (err) {
+      console.error("Patent search failed:", err);
+      setRecords([]);
+    } finally {
+      setLoading(false);
+    }
   };
-  const allPlants = Array.from(new Set(getPatentRecords().flatMap(r => r.plants))).sort();
+
+  // Perform initial search on mount
+  useEffect(() => {
+    search();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const results = records
+    .filter(r => status === "All" ? true : r.status === status)
+    .sort((a, b) => b.similarity - a.similarity);
+
   return <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8 workspace-page workspace-page-patents">
       <WorkspaceIdentity index="02" code="IP-02" label={t("PATENT DISCOVERY")} title={t("Search the prior landscape")} signal="Search the prior landscape · SEARCH / MATCH" metric="SEARCH / MATCH" />
 

@@ -1,13 +1,15 @@
 import { useTranslation } from "react-i18next";
 import { useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, RotateCcw } from "lucide-react";
+import { ArrowLeft, ArrowRight, RotateCcw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Separator } from "@/components/ui/separator";
 import { ConfidenceMeter, Disclaimer, EvidenceChip, Eyebrow, JurisdictionPill, PageHeader, WorkspaceIdentity, Panel, DataStatusBadge, SourceBadge } from "@/components/ip/primitives";
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:10000";
 export const Route = createFileRoute("/formulation")({
   head: () => ({
     meta: [{
@@ -124,10 +126,32 @@ function Formulation() {
     route: ""
   });
   const [done, setDone] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [result, setResult] = useState<any>(null);
+
   const total = steps.length + 1;
   const current = steps[step - 1];
-  const result = classify(answers, t);
   const canAdvance = step === 0 ? answers.product.trim().length > 2 : Boolean(current && answers[current.key]);
+
+  const submitClassification = async () => {
+    setLoading(true);
+    setDone(true);
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/v1/analyze/formulation`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(answers)
+      });
+      const data = await res.json();
+      setResult(data);
+    } catch (err) {
+      console.error(err);
+      // Fallback to local logic if network fails
+      setResult(classify(answers, t));
+    } finally {
+      setLoading(false);
+    }
+  };
   return <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8 workspace-page workspace-page-formulation">
       <WorkspaceIdentity index="04" code="LAB-04" label={t("FORMULATION LAB")} title={t("Classify the product before filing")} signal="Classify the product before filing · CLASSIFY / ROUTE" metric="CLASSIFY / ROUTE" />
 
@@ -170,7 +194,7 @@ function Formulation() {
               <div className="mt-6 flex items-center justify-between">
                 <Button variant="ghost" size="sm" disabled={step === 0} onClick={() => setStep(s => Math.max(0, s - 1))}>
                   <ArrowLeft className="size-3.5" aria-hidden />{t("Back")}</Button>
-                <Button variant="saffron" size="sm" disabled={!canAdvance} onClick={() => step === steps.length ? setDone(true) : setStep(s => s + 1)}>
+                <Button variant="saffron" size="sm" disabled={!canAdvance} onClick={() => step === steps.length ? submitClassification() : setStep(s => s + 1)}>
                   {step === steps.length ? t("Classify") : t("Next")}
                   <ArrowRight className="size-3.5" aria-hidden />
                 </Button>
