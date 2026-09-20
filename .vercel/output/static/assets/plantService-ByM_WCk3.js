@@ -1,0 +1,1 @@
+import{S as e}from"./primitives-CXnpKmgc.js";function t(){return e}export{t};

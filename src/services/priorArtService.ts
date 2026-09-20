@@ -9,6 +9,13 @@ const graphCache = new Map<string, PriorArtGraphResponse>();
 export function setPriorArtCache(query: string, data: PriorArtGraphResponse) {
   const normalizedKey = query.trim().toLowerCase();
   graphCache.set(normalizedKey, data);
+  if (typeof window !== "undefined") {
+    try {
+      sessionStorage.setItem(`pa_graph_${normalizedKey}`, JSON.stringify(data));
+    } catch (e) {
+      // Ignore quota errors
+    }
+  }
 }
 
 export function getEvidenceGraph(): { nodes: MockEvidenceNode[]; edges: Array<[string, string]> } {
@@ -20,6 +27,19 @@ export async function fetchPriorArtGraph(query?: string): Promise<PriorArtGraphR
   
   if (normalizedKey && graphCache.has(normalizedKey)) {
     return graphCache.get(normalizedKey)!;
+  }
+
+  if (normalizedKey && typeof window !== "undefined") {
+    try {
+      const cached = sessionStorage.getItem(`pa_graph_${normalizedKey}`);
+      if (cached) {
+        const data = JSON.parse(cached) as PriorArtGraphResponse;
+        graphCache.set(normalizedKey, data); // restore to memory
+        return data;
+      }
+    } catch (e) {
+      // Ignore parsing errors
+    }
   }
 
   const reqBody: PriorArtGraphRequest = query ? { query } : {};

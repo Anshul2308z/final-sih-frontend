@@ -41,6 +41,7 @@ function Assistant() {
     jurisdiction
   } = useJurisdiction();
   const [input, setInput] = useState("");
+  const [submittedQuery, setSubmittedQuery] = useState("");
   const [phase, setPhase] = useState<"idle" | "running" | "done">("idle");
   const [stage, setStage] = useState(-1);
   const [data, setData] = useState<ChatResponse | null>(null);
@@ -51,6 +52,8 @@ function Assistant() {
     }
     setPhase("running");
     setStage(0);
+    const currentQuery = input;
+    setSubmittedQuery(currentQuery);
 
     // Animate stages while fetching
     let i = 0;
@@ -79,7 +82,7 @@ function Assistant() {
       const json = await res.json();
       
       if (json.prior_art_graph) {
-        setPriorArtCache(input, json.prior_art_graph);
+        setPriorArtCache(currentQuery, json.prior_art_graph);
       }
       
       setData(json);
@@ -223,7 +226,7 @@ function Assistant() {
                 </Button>
                 <Button asChild variant="ink" size="sm">
                   <Link to="/prior-art" search={{
-                query: input
+                query: submittedQuery
               }}>{t("Open evidence explorer")}<ArrowRight className="size-3.5" aria-hidden />
                   </Link>
                 </Button>
