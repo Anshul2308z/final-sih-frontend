@@ -56,6 +56,9 @@ function AbsCheck() {
           resource, origin, collection, tk, commercial, patent, exportMarket
         })
       });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data = await res.json();
       setResult(data);
     } catch (err) {
@@ -148,7 +151,7 @@ function AbsCheck() {
               </div>)}
           </div>
 
-          <Button variant="saffron" className="mt-6 w-full" onClick={checkAbs} disabled={loading}>{t("Run ABS check")}</Button>
+          <Button variant="saffron" className="mt-6 w-full" onClick={checkAbs} disabled={loading || !resource.trim()}>{t("Run ABS check")}</Button>
         </Panel>
 
         <div className="space-y-6">

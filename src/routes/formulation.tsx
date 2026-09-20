@@ -142,6 +142,9 @@ function Formulation() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(answers)
       });
+      if (!res.ok) {
+        throw new Error(`HTTP error! status: ${res.status}`);
+      }
       const data = await res.json();
       setResult(data);
     } catch (err) {

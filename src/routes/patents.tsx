@@ -90,7 +90,7 @@ function PatentIntelligence() {
   const {
     t
   } = useTranslation();
-  const [query, setQuery] = useState("herbal formulation using turmeric and neem for skin inflammation");
+  const [query, setQuery] = useState("");
   const [scope, setScope] = useState("Both");
   const [type, setType] = useState<typeof searchTypes[number]>("Semantic");
   const [activeSources, setActiveSources] = useState<string[]>(sources);
@@ -102,6 +102,7 @@ function PatentIntelligence() {
   const [allPlants, setAllPlants] = useState<string[]>([]);
 
   const search = async () => {
+    if (!query.trim()) return;
     setLoading(true);
     setRan(true);
     try {
@@ -131,11 +132,7 @@ function PatentIntelligence() {
     }
   };
 
-  // Perform initial search on mount
-  useEffect(() => {
-    search();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+
 
   const results = records
     .filter(r => status === "All" ? true : r.status === status)
@@ -152,7 +149,7 @@ function PatentIntelligence() {
         <Eyebrow>{t("Describe your invention or formulation in your own words")}</Eyebrow>
         <div className="mt-3 flex flex-col gap-3 lg:flex-row">
           <Input value={query} onChange={e => setQuery(e.target.value)} placeholder={t("Describe your invention or formulation in your own words...")} className="h-12 border-border bg-background/60 text-sm" />
-          <Button variant="saffron" className="h-12 px-6" onClick={search} disabled={loading}>
+          <Button variant="saffron" className="h-12 px-6" onClick={search} disabled={loading || !query.trim()}>
             {loading ? <Loader2 className="size-4 animate-spin" aria-hidden /> : <Search className="size-4" aria-hidden />}{t("Search")}</Button>
         </div>
         <div className="mt-3 flex flex-wrap gap-2 text-xs text-muted-foreground">
@@ -230,7 +227,7 @@ function PatentIntelligence() {
 
           {loading ? <div className="space-y-4">
               {[0, 1, 2].map(i => <Skeleton key={i} className="h-56 w-full rounded-xl" />)}
-            </div> : results.length === 0 ? <EmptyState title={t("No records match these filters")} body={t("Widen the jurisdiction, clear the plant filter, or try a hybrid search to recover borderline matches.")} action={<Button variant="ink" size="sm" onClick={() => {
+            </div> : !ran ? <EmptyState title={t("Start your search")} body={t("Enter a concept or formulation above to find relevant patents and prior art.")} /> : results.length === 0 ? <EmptyState title={t("No records match these filters")} body={t("Widen the jurisdiction, clear the plant filter, or try a hybrid search to recover borderline matches.")} action={<Button variant="ink" size="sm" onClick={() => {
           setScope("Both");
           setPlant("All");
           setStatus("All");
