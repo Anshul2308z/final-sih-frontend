@@ -83,16 +83,9 @@ function Reports() {
       <PageHeader eyebrow={t("Workspace")} title={t("Reports & history")} subtitle={t("Generate an IP intelligence report where every source stays attached to the finding it supports, and revisit earlier work.")} i18nPrefix="pg.reports" actions={<>
             <Button variant="saffron" size="sm" onClick={() => setPreview(true)}>
               <Eye className="size-3.5" aria-hidden />{t("Preview")}</Button>
-            <Button variant="ink" size="sm" onClick={() => window.print()}>
+            <Button variant="ink" size="sm" onClick={() => toast("PDF export is not connected to a document service in this build.")}>
               <Download className="size-3.5" aria-hidden />{t("Download PDF")}</Button>
-            <Button variant="ghost" size="sm" onClick={() => (() => {
-              if (navigator.share) {
-                navigator.share({ title: document.title, url: window.location.href }).catch(() => {});
-              } else {
-                navigator.clipboard.writeText(window.location.href);
-                toast(t("Link copied to clipboard"));
-              }
-            })()}>
+            <Button variant="ghost" size="sm" onClick={() => toast("Share links are not connected to a sharing service in this build.")}>
               <Share2 className="size-3.5" aria-hidden />{t("Share")}</Button>
             {/* <DataStatusBadge /> */}
           </>} />
