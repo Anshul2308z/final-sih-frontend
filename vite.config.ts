@@ -10,19 +10,23 @@ export default defineConfig({
     tanstackStart({
       server: { entry: "server" },
     }),
-    nitro({ preset: "vercel" }),
+    nitro({ 
+      preset: "vercel",
+      externals: {
+        inline: ["tslib"]
+      }
+    }),
     react(),
   ],
-
-
   resolve: {
+    alias: {
+      'tslib': 'tslib/tslib.es6.mjs'
+    },
     tsconfigPaths: true,
   },
   ssr: {
-    noExternal: ['tslib'],
+    noExternal: true,
   },
-
-
   server: {
     host: "::",
     port: 5173,
