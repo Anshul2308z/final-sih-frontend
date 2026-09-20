@@ -13,9 +13,16 @@ export default defineConfig({
     nitro({ preset: "vercel" }),
     react(),
   ],
+
+
   resolve: {
     tsconfigPaths: true,
   },
+  ssr: {
+    noExternal: ['tslib'],
+  },
+
+
   server: {
     host: "::",
     port: 5173,
