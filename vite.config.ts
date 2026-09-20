@@ -24,9 +24,6 @@ export default defineConfig({
     },
     tsconfigPaths: true,
   },
-  ssr: {
-    noExternal: true,
-  },
   server: {
     host: "::",
     port: 5173,
