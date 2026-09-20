@@ -227,7 +227,15 @@ function Formulation() {
         </Panel>
 
         <div className="space-y-6">
-          {done ? <Panel className="animate-rise p-6">
+          {done && loading ? (
+            <Panel className="p-6">
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-saffron border-t-transparent"></div>
+                <p className="mt-4 text-sm font-medium text-foreground">{t("Analyzing formulation guidelines...")}</p>
+                <p className="mt-1 text-xs text-muted-foreground">{t("This may take a moment.")}</p>
+              </div>
+            </Panel>
+          ) : done && result ? <Panel className="animate-rise p-6">
               <div className="flex flex-wrap items-center gap-2">
                 <Eyebrow className="mr-auto">{t("Preliminary classification")}</Eyebrow>
                 <JurisdictionPill jurisdiction="India" />
@@ -248,7 +256,7 @@ function Formulation() {
                 <div>
                   <Eyebrow>{t("Relevant authorities")}</Eyebrow>
                   <div className="mt-1.5 flex flex-wrap gap-2">
-                    {result.authorities.map(x => <EvidenceChip key={x}>{x}</EvidenceChip>)}
+                    {(Array.isArray(result?.authorities) ? result.authorities : []).map(x => <EvidenceChip key={x}>{x}</EvidenceChip>)}
                   </div>
                 </div>
               </div>
@@ -256,7 +264,7 @@ function Formulation() {
               <div className="mt-5">
                 <Eyebrow>{t("Potential IP implications")}</Eyebrow>
                 <div className="mt-1.5 flex flex-wrap gap-2">
-                  {result.ip.map(x => <EvidenceChip key={x}>{x}</EvidenceChip>)}
+                  {(Array.isArray(result?.ip) ? result.ip : []).map(x => <EvidenceChip key={x}>{x}</EvidenceChip>)}
                 </div>
               </div>
 
