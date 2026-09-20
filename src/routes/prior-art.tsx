@@ -90,8 +90,16 @@ function PriorArt() {
   } | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  
   useEffect(() => {
-    fetchPriorArtGraph(search.query).then(res => {
+    // Fallback to localStorage if accessed via navbar without a query param
+    const activeQuery = search.query || localStorage.getItem('last_prior_art_query') || undefined;
+    
+    if (activeQuery) {
+      localStorage.setItem('last_prior_art_query', activeQuery);
+    }
+    
+    fetchPriorArtGraph(activeQuery).then(res => {
       setData(res as any);
       setLoading(false);
     }).catch(err => {
@@ -101,7 +109,14 @@ function PriorArt() {
     });
   }, [search.query]);
   const pos = data ? positions(data.nodes) : new Map();
-  const [selected, setSelected] = useState<EvidenceNode | null>((data?.nodes || [])[3] ?? null);
+  const [selected, setSelected] = useState<EvidenceNode | null>(null);
+
+  useEffect(() => {
+    if (data && data.nodes && data.nodes.length > 0 && !selected) {
+      setSelected(data.nodes[3] ?? data.nodes[0]);
+    }
+  }, [data, selected]);
+
   const source = selected?.source ? getSourceById(selected.source) : undefined;
   return <div className="mx-auto max-w-[1600px] px-4 py-10 sm:px-6 lg:px-8 workspace-page workspace-page-prior-art">
       <WorkspaceIdentity index="03" code="EV-03" label={t("PRIOR-ART TRACE")} title={t("Connect claims to evidence")} signal="Connect claims to evidence · TRACE / PROVE" metric="TRACE / PROVE" />
