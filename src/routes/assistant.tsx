@@ -143,7 +143,7 @@ function Assistant() {
                 <JurisdictionPill jurisdiction={jurisdiction} />
                 <RiskChip level="risk" />
               </div>
-              {data?.confidence === 0 && <div className="mt-4 rounded-md border border-red-500/50 bg-red-500/10 p-3 text-sm text-red-600">{t("⚠️ AI analysis unavailable. Showing retrieved official records below.")}</div>}
+              {data?.confidence === 0 && <div className="mt-4 rounded-md border border-red-500/50 bg-red-500/10 p-3 text-sm text-red-600">{t("⚠️ No matching prior-art records or compliance guidelines were found in the database.")}</div>}
               <p className="mt-4 text-sm leading-relaxed text-foreground">
                 {data?.executive_answer}
               </p>
