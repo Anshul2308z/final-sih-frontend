@@ -30,7 +30,7 @@ function SourcesPage() {
   return <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:px-6 lg:px-10 workspace-page workspace-page-sources">
       <WorkspaceIdentity index="09" code="SR-09" label={t("SOURCE REGISTRY")} title={t("Every claim needs a traceable authority")} signal="Every claim needs a traceable authority · VERIFY / CITE" metric="VERIFY / CITE" />
 
-      <PageHeader eyebrow={t("Source transparency")} title={<>{t("Every answer,")}<span className="text-saffron">{t("anchored to an authority.")}</span>{t("i18nPrefix=\"pg.sources\"")}</>} subtitle={t("IP-SAKTI never answers from model memory alone. Each claim cites an official registry, statute, or treaty body listed here — with its last verification date.")}
+      <PageHeader eyebrow={t("Source transparency")} title={<>{t("Every answer,")}<span className="text-saffron">{t("anchored to an authority.")}</span></>} subtitle={t("IP-SAKTI never answers from model memory alone. Each claim cites an official registry, statute, or treaty body listed here — with its last verification date.")}
     // actions={<DataStatusBadge />}
     />
 
